@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body {
+      background-image: url('assets/pexels-timmossholder-20560810.jpg');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      width: 80%;
+      margin: auto;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.6); /* Adjusted opacity for less darkness */
+      padding: 20px;
+      border-radius: 10px;
+    }
+    #movieList {
+      width: 100%;
+      max-height: 200px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 10px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    #titleSearchResults, #genreSearchResults {
+      width: 100%;
+      max-height: 300px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 10px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .movie-item {
+      padding: 5px;
+      border-bottom: 1px solid #eee;
+    }
+    .movie-item:last-child {
+      border-bottom: none;
+    }
+    .comment-box {
+      width: 30%;
+      height: 50px;
+      margin-top: 5px;
+      background: rgba(255, 255, 255, 0.8);
+      color: black;
+    }
+    .previous-comments {
+      width: 30%;
+      max-height: 50px;
+      overflow-y: scroll;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid #ccc;
+      margin-top: 5px;
+      padding: 5px;
+      color: black;
+    }
+    .rating-buttons {
+      display: inline-block;
+      margin-right: 10px;
+    }
+    .comments-list {
+      margin-top: 10px;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+    }
+    .comment {
+      padding: 5px;
+      border-bottom: 1px solid #eee;
+    }
+    h1, h2 {
+      color: #ffcc00;
+    }
+    .heading-text {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      color: #ffcc00;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Movie Dashboard</h1>
+    <div class="heading-text">Tell us what you think</div>
+
+    <div>
+      <h2>Search by Title</h2>
+      <input type="text" id="titleSearch" placeholder="Enter movie title">
+      <button id="titleSearchButton">Search</button>
+      <div id="titleSearchResults"></div>
+    </div>
+
+    <div>
+      <h2>Search by Genre</h2>
+      <input type="text" id="genreSearch" placeholder="Enter movie genre">
+      <button id="genreSearchButton">Search</button>
+      <div id="genreSearchResults"></div>
+    </div>
+
+    <div>
+      <h2>Movie List</h2>
+      <div id="movieList"></div>
+      <button id="scrollButton">Next Movie</button>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('titleSearchButton').addEventListener('click', async () => {
+      const title = document.getElementById('titleSearch').value.trim();
+      console.log(`Searching for movie with title: ${title}`);
+      const response = await fetch(`/api/movies?title=${encodeURIComponent(title)}`);
+      if (!response.ok) {
+        const message = `An error has occurred: ${response.status}`;
+        throw new Error(message);
+      }
+      const data = await response.json();
+      displaySearchResults(data, 'titleSearchResults');
+    });
+
+    document.getElementById('genreSearchButton').addEventListener('click', async () => {
+      const genre = document.getElementById('genreSearch').value.trim();
+      console.log(`Searching for movies with genre: ${genre}`);
+      const response = await fetch(`/api/movies?genre=${encodeURIComponent(genre)}`);
+      if (!response.ok) {
+        const message = `An error has occurred: ${response.status}`;
+        throw new Error(message);
+      }
+      const data = await response.json();
+      displaySearchResults(data, 'genreSearchResults');
+    });
+
+    function displaySearchResults(data, resultContainerId) {
+      const resultsDiv = document.getElementById(resultContainerId);
+      resultsDiv.innerHTML = data.slice(0, 3).map(movie => `
+        <div class="movie-item">
+          <p id="movie-${movie._id}">${movie.title} (${movie.genres}) - Rating: <span id="rating-${movie._id}">${movie.rating}</span></p>
+          <div class="rating-buttons">
+            <label>Rate: </label>
+            ${[1, 2, 3, 4, 5].map(rating => `<button onclick="rateMovie('${movie.title}', ${rating}, '${movie._id}')">${rating}</button>`).join('')}
+          </div>
+          <textarea id="comment-${movie._id}" class="comment-box" placeholder="Add your comment here..."></textarea>
+          <div class="previous-comments">
+            ${movie.comments ? movie.comments.map(comment => `<div class="comment">${comment.text}</div>`).join('') : ''}
+          </div>
+        </div>
+      `).join('');
+
+      let currentIndex = 3;
+      const scrollButton = document.createElement('button');
+      scrollButton.textContent = 'Scroll for More';
+      scrollButton.addEventListener('click', () => {
+        const newMovies = data.slice(currentIndex, currentIndex + 3);
+        newMovies.forEach(movie => {
+          const movieElement = document.createElement('div');
+          movieElement.classList.add('movie-item');
+          movieElement.innerHTML = `
+            <p id="movie-${movie._id}">${movie.title} (${movie.genres}) - Rating: <span id="rating-${movie._id}">${movie.rating}</span></p>
+            <div class="rating-buttons">
+              <label>Rate: </label>
+              ${[1, 2, 3, 4, 5].map(rating => `<button onclick="rateMovie('${movie.title}', ${rating}, '${movie._id}')">${rating}</button>`).join('')}
+            </div>
+            <textarea id="comment-${movie._id}" class="comment-box" placeholder="Add your comment here..."></textarea>
+            <div class="previous-comments">
+              ${movie.comments ? movie.comments.map(comment => `<div class="comment">${comment.text}</div>`).join('') : ''}
+            </div>
+          `;
+          resultsDiv.appendChild(movieElement);
+        });
+        currentIndex += 3;
+        if (currentIndex >= data.length) {
+          scrollButton.disabled = true;
+        }
+      });
+      resultsDiv.appendChild(scrollButton);
+    }
+
+    let currentMovieIndex = 0;
+    let movieList = [];
+
+    document.getElementById('scrollButton').addEventListener('click', () => {
+      if (movieList.length === 0) {
+        fetch('/api/movies')
+          .then(response => response.json())
+          .then(data => {
+            movieList = data;
+            displayMovies();
+          });
+      } else {
+        displayMovies();
+      }
+    });
+
+    function displayMovies() {
+      const movieListDiv = document.getElementById('movieList');
+      if (movieList.length > 0) {
+        const movie = movieList[currentMovieIndex];
+        movieListDiv.innerHTML = `
+          <div class="movie-item">
+            <p id="movie-${movie._id}">${movie.title} (${movie.genres}) - Rating: <span id="rating-${movie._id}">${movie.rating}</span></p>
+            <div class="rating-buttons">
+              <label>Rate: </label>
+              ${[1, 2, 3, 4, 5].map(rating => `<button onclick="rateMovie('${movie.title}', ${rating}, '${movie._id}')">${rating}</button>`).join('')}
+            </div>
+            <textarea id="comment-${movie._id}" class="comment-box" placeholder="Add your comment here..."></textarea>
+            <div class="previous-comments">
+              ${movie.comments ? movie.comments.map(comment => `<div class="comment">${comment.text}</div>`).join('') : ''}
+            </div>
+          </div>
+        `;
+        currentMovieIndex = (currentMovieIndex + 1) % movieList.length;
+      }
+    }
+
+    async function rateMovie(title, userRating, movieId) {
+      const comment = document.getElementById(`comment-${movieId}`).value;
+      console.log(`Sending rating request for movie: ${title} with rating: ${userRating} and comment: ${comment}`);
+      const response = await fetch('/api/rating/rate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, userRating, comment })
+      });
+      if (!response.ok) {
+        const message = `An error has occurred: ${response.status}`;
+        throw new Error(message);
+      }
+      const data = await response.json();
+      alert(`New rating for ${title}: ${data.newRating}`);
+      document.getElementById(`rating-${movieId}`).textContent = data.newRating;
+    }
+  </script>
+</body>
+</html>

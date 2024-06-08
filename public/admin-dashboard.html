@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Dashboard</h1>
+
+    <div>
+      <h2>Delete User</h2>
+      <input type="email" id="userEmail" placeholder="Enter user email">
+      <button id="deleteUserButton">Delete User</button>
+      <div id="deleteUserMessage"></div>
+    </div>
+
+    <div>
+      <h2>Add Movie</h2>
+      <input type="text" id="movieTitle" placeholder="Enter movie title">
+      <input type="text" id="movieGenres" placeholder="Enter movie genres">
+      <button id="addMovieButton">Add Movie</button>
+      <div id="addMovieMessage"></div>
+    </div>
+
+    <div>
+      <h2>Delete Movie</h2>
+      <input type="text" id="deleteMovieTitle" placeholder="Enter movie title">
+      <button id="deleteMovieButton">Delete Movie</button>
+      <div id="deleteMovieMessage"></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('deleteUserButton').addEventListener('click', async () => {
+      const email = document.getElementById('userEmail').value;
+      const response = await fetch('/api/admin/deleteUser', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
+      const data = await response.json();
+      const messageDiv = document.getElementById('deleteUserMessage');
+      messageDiv.textContent = data.message;
+    });
+
+    document.getElementById('addMovieButton').addEventListener('click', async () => {
+      const title = document.getElementById('movieTitle').value;
+      const genres = document.getElementById('movieGenres').value;
+      const response = await fetch('/api/admin/addMovie', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title, genres })
+      });
+      const data = await response.json();
+      const messageDiv = document.getElementById('addMovieMessage');
+      messageDiv.textContent = data.message;
+    });
+
+    document.getElementById('deleteMovieButton').addEventListener('click', async () => {
+      const title = document.getElementById('deleteMovieTitle').value;
+      const response = await fetch('/api/admin/deleteMovie', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ title })
+      });
+      const data = await response.json();
+      const messageDiv = document.getElementById('deleteMovieMessage');
+      messageDiv.textContent = data.message;
+    });
+  </script>
+</body>
+</html>

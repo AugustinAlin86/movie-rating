@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main Page</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body {
+      background-image: url('assets/pexels-felipe-cardoso-861539-1764338.jpg');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100vh;
+      margin: 0;
+      color: white;
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+    h1 {
+      margin-top: 10px;
+      color: #589ad8; /* Changed the text color */
+    }
+    .buttons {
+      margin-bottom: 240px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start; /* Align buttons to the left */
+      padding-left: 0px; /* Optional: Add padding to the left */
+    }
+    button {
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      text-align: left; /* Align text to the left */
+    }
+    button:hover {
+      background-color: rgba(0, 0, 0, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Rate a Movie to Help Others Discover Great Films</h1>
+    <div class="buttons">
+      <button onclick="window.location.href='/user-login.html'">User Login</button>
+      <button onclick="window.location.href='/signup.html'">Sign Up</button>
+      <button onclick="window.location.href='/admin-login.html'">Admin Login</button>
+    </div>
+  </div>
+</body>
+</html>

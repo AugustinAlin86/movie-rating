@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Signup</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Signup</h1>
+    <form id="adminSignupForm">
+      <input type="email" id="email" name="email" placeholder="Email" required autocomplete="email"><br>
+      <input type="password" id="password" name="password" placeholder="Password" required autocomplete="new-password"><br>
+      <button type="submit">Sign Up</button>
+    </form>
+    <p id="message"></p>
+  </div>
+
+  <script>
+    document.getElementById('adminSignupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('/api/auth/admin-signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const message = document.getElementById('message');
+
+        if (response.status === 201) {
+          message.textContent = 'Admin signup successful!';
+          window.location.href = '/admin-login.html'; // Redirect to admin login
+        } else {
+          message.textContent = `Error: ${data.message}`;
+        }
+      } catch (error) {
+        console.error('Error during admin signup:', error);
+        document.getElementById('message').textContent = `Error: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
